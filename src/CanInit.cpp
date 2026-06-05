@@ -1,82 +1,67 @@
 #include "CanInit.h"
 #include "CanConfig.h"
+#include "CanBus.h"
 
-// -----------------------------------------------------------------------------
-// Drivers ACAN globaux
-// -----------------------------------------------------------------------------
-// ACAN_ESP32 : driver statique ACAN_ESP32::can
-// ACAN2515   : doit être instancié ici
-// -----------------------------------------------------------------------------
-ACAN2515 can2515(CAN1_CS_PIN, SPI, CAN1_INT_PIN);
+#include <ACAN_ESP32.h>
+#include <ACAN2515.h>
+#include <SPI.h>
 
-// -----------------------------------------------------------------------------
-// Tableau global de bus CAN
-// -----------------------------------------------------------------------------
-CanBus CAN[CAN_COUNT] = {
-    CanBus(&ACAN_ESP32::can), // CAN0 = ESP32 interne
-    CanBus(&can2515)          // CAN1 = MCP2515 externe
-    // Si CAN_COUNT > 2, ajouter ici d'autres drivers
-};
+bool CanInit::begin(const CanConfigProvider& provider) {
 
+    const uint8_t count = provider.busCount();
+    Serial.printf("[CAN] Initialisation de %u bus...\n", count);
 
-// -----------------------------------------------------------------------------
-// ISR MCP2515
-// -----------------------------------------------------------------------------
-static void canISR() {
-    can2515.isr();
-}
+    for (uint8_t i = 0; i < count; i++) {
 
+        const CanBusConfig& cfg = provider.bus(i);
 
-// -----------------------------------------------------------------------------
-// Initialisation globale CAN
-// -----------------------------------------------------------------------------
-bool CanUniversal_begin() {
-
-    // =========================================================================
-    // CAN0 : ESP32 interne (optionnel)
-    // =========================================================================
-    if (CAN0_ENABLED) {
-
-        ACAN_ESP32_Settings settings(CAN0_SPEED);
-        settings.mTxPin = CAN0_TX_PIN;
-        settings.mRxPin = CAN0_RX_PIN;
-
-        uint32_t err = ACAN_ESP32::can.begin(settings);
-
-        if (err != 0) {
-            Serial.printf("[CAN0] Erreur ACAN_ESP32 : 0x%X → ignoré\n", err);
-        } else {
-            Serial.println("[CAN0] OK (ESP32 interne)");
+        if (!cfg.enabled) {
+            Serial.printf("[CAN%u] Désactivé\n", i);
+            continue;
         }
 
-    } else {
-        Serial.println("[CAN0] désactivé dans CanConfig.h");
-    }
+        // ---------------------------------------------------------------------
+        // CAN interne ESP32 (TWAI)
+        // ---------------------------------------------------------------------
+        if (cfg.cs_pin == GPIO_NUM_NC) {
 
+            ACAN_ESP32_Settings settings(cfg.speed);
+            settings.mTxPin = cfg.tx_pin;
+            settings.mRxPin = cfg.rx_pin;
 
-    // =========================================================================
-    // CAN1 : MCP2515 externe (optionnel)
-    // =========================================================================
-    if (CAN1_ENABLED) {
+            uint32_t err = ACAN_ESP32::can.begin(settings);
 
-        ACAN2515Settings settings(
-            CAN1_QUARTZ,
-            CAN1_SPEED,
-            CAN1_TOLERANCE
-        );
+            if (err != 0) {
+                Serial.printf("[CAN%u] Erreur ACAN_ESP32 : 0x%X\n", i, err);
+            } else {
+                Serial.printf("[CAN%u] OK (ESP32 interne)\n", i);
+            }
 
-        uint32_t err = can2515.begin(settings, canISR);
-
-        if (err != 0) {
-            Serial.printf("[CAN1] MCP2515 non détecté (err=0x%X) → ignoré\n", err);
-        } else {
-            Serial.println("[CAN1] OK (MCP2515 externe)");
+            CanBus::attach(i, &ACAN_ESP32::can);
         }
 
-    } else {
-        Serial.println("[CAN1] désactivé dans CanConfig.h");
+        // ---------------------------------------------------------------------
+        // CAN externe MCP2515
+        // ---------------------------------------------------------------------
+        else {
+
+            static ACAN2515* drivers[8] = { nullptr };
+
+            drivers[i] = new ACAN2515(cfg.cs_pin, SPI, cfg.int_pin);
+
+            ACAN2515Settings settings(cfg.quartz, cfg.speed, cfg.tolerance);
+
+            uint32_t err = drivers[i]->begin(settings, [](){});
+
+            if (err != 0) {
+                Serial.printf("[CAN%u] Erreur MCP2515 : 0x%X\n", i, err);
+            } else {
+                Serial.printf("[CAN%u] OK (MCP2515 externe)\n", i);
+            }
+
+            CanBus::attach(i, drivers[i]);
+        }
     }
 
     return true;
 }
-
