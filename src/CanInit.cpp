@@ -10,40 +10,32 @@
  * ============================================================================
  *  CanInit::begin(provider)
  * ============================================================================
- *  Initialise tous les bus CAN décrits par l’application via CanConfigProvider.
+ *  Initialise tous les bus CAN décrits par l’application via un
+ *  CanConfigProvider.
  *
- *  La bibliothèque ne connaît :
- *    - ni les pins
- *    - ni les vitesses
- *    - ni le nombre de bus
- *    - ni le matériel utilisé (ESP32 interne ou MCP2515)
+ *  La bibliothèque :
+ *    - ne connaît pas le matériel exact
+ *    - ne connaît pas les pins
+ *    - ne connaît pas le nombre de bus
  *
- *  → Toutes ces informations sont fournies par l’application.
+ *  Elle se contente de :
+ *    → lire la configuration fournie
+ *    → instancier les bons drivers (ESP32 interne ou MCP2515)
+ *    → initialiser chaque bus
+ *    → enregistrer les drivers dans CanBus
  *
- *  La bibliothèque se contente de :
- *    1. Lire la configuration de chaque bus
- *    2. Déterminer s’il s’agit d’un bus interne (TWAI) ou externe (MCP2515)
- *    3. Instancier le bon driver ACAN
- *    4. Initialiser le bus
- *    5. Enregistrer le driver dans CanBus pour l’envoi/réception
- *
- *  Cette approche rend la bibliothèque :
- *    - totalement générique
- *    - indépendante du matériel
- *    - compatible multi‑bus
- *    - simple à intégrer dans n’importe quel projet
+ *  Objectif :
+ *    Fournir une initialisation CAN totalement générique et modulaire.
  * ============================================================================
  */
-
 bool CanInit::begin(const CanConfigProvider& provider) {
 
     const uint8_t count = provider.busCount();
-
     Serial.printf("[CAN] Initialisation de %u bus...\n", count);
 
+    // Parcours de tous les bus déclarés par l’application
     for (uint8_t i = 0; i < count; i++) {
 
-        // Récupération de la configuration du bus i
         const CanBusConfig& cfg = provider.bus(i);
 
         // ---------------------------------------------------------------------
@@ -57,10 +49,52 @@ bool CanInit::begin(const CanConfigProvider& provider) {
         // ---------------------------------------------------------------------
         // CAN interne ESP32 (TWAI)
         // ---------------------------------------------------------------------
-        // Convention : si cs_pin == GPIO_NUM_NC → ce n’est PAS un MCP2515
-        //              donc c’est un bus CAN interne ESP32
+        // Règle : si cs_pin == GPIO_NUM_NC → c’est un bus interne
         // ---------------------------------------------------------------------
         if (cfg.cs_pin == GPIO_NUM_NC) {
 
             ACAN_ESP32_Settings settings(cfg.speed);
             settings.mTxPin = cfg.tx_pin;
+            settings.mRxPin = cfg.rx_pin;
+
+            uint32_t err = ACAN_ESP32::can.begin(settings);
+
+            if (err != 0) {
+                Serial.printf("[CAN%u] Erreur ACAN_ESP32 : 0x%X\n", i, err);
+            } else {
+                Serial.printf("[CAN%u] OK (ESP32 interne)\n", i);
+            }
+
+            // Enregistrement du driver dans CanBus
+            CanBus::attach(i, &ACAN_ESP32::can);
+        }
+
+        // ---------------------------------------------------------------------
+        // CAN externe MCP2515
+        // ---------------------------------------------------------------------
+        else {
+
+            // Tableau statique pour conserver les instances
+            static ACAN2515* drivers[8] = { nullptr };
+
+            // Instanciation du driver MCP2515
+            drivers[i] = new ACAN2515(cfg.cs_pin, SPI, cfg.int_pin);
+
+            ACAN2515Settings settings(cfg.quartz, cfg.speed, cfg.tolerance);
+
+            // Initialisation du MCP2515
+            uint32_t err = drivers[i]->begin(settings, [](){});
+
+            if (err != 0) {
+                Serial.printf("[CAN%u] Erreur MCP2515 : 0x%X\n", i, err);
+            } else {
+                Serial.printf("[CAN%u] OK (MCP2515 externe)\n", i);
+            }
+
+            // Enregistrement du driver dans CanBus
+            CanBus::attach(i, drivers[i]);
+        }
+    }
+
+    return true;
+}
