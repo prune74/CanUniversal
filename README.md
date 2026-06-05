@@ -58,7 +58,7 @@ CanUniversal/
  ├── README.md
  └── LICENSE
 ```
-🚀 Exemple minimal
+## 🚀 Exemple minimal
 
 ```cpp
 #include <CanMsg.h>
@@ -101,25 +101,21 @@ void loop() {
 
 ### CanInit
 Détecte et initialise automatiquement le contrôleur CAN
-
 Configure ACAN_ESP32 ou ACAN2515 selon la plateforme
 
-CanBus
+### CanBus
 Envoi / réception de trames CAN
-
 Bufferisation
-
 Gestion des erreurs
 
-CanMsg
+### CanMsg
 Structure de message CAN typée
-
 Helpers pour manipuler les données
 
-CanID
+### CanID
 Gestion des IDs Discovery 2026
-
 Helpers pour encoder/décoder les champs
 
-CanConfig
+### CanConfig
 Configuration du bus (vitesse, mode, filtres)
+
