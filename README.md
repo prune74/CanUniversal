@@ -1,6 +1,6 @@
 # 🌐 CanUniversal
 ## Bibliothèque CAN universelle pour ESP32 — Architecture Discovery 2026
-** CanUniversal ** est une bibliothèque C++ modulaire conçue pour les projets embarqués basés sur **ESP32**.
+**CanUniversal** est une bibliothèque C++ modulaire conçue pour les projets embarqués basés sur **ESP32**.
 
 Elle fournit une abstraction unifiée permettant d’utiliser :
 - le CAN interne ESP32 (TWAI) via ACAN_ESP32
@@ -10,14 +10,10 @@ Elle fournit une abstraction unifiée permettant d’utiliser :
 - des messages typés Discovery 2026 (CanMsg, CanID)
 
 Cette bibliothèque est utilisée dans :
-
-Discovery Master Board
-
-DCC2CAN
-
-Booster Discovery 2026
-
-Gateway CAN/DCC
+- Discovery Master Board
+- DCC2CAN
+- Booster Discovery 2026
+- Gateway CAN/DCC
 
 et plus largement dans l’architecture Discovery 2026.
 
