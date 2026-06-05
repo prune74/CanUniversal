@@ -1,6 +1,6 @@
 # 🌐 CanUniversal
 ## Bibliothèque CAN universelle pour ESP32 — Architecture Discovery 2026
-CanUniversal est une bibliothèque C++ modulaire conçue pour les projets embarqués basés sur ESP32.
+**CanUniversal** est une bibliothèque C++ modulaire conçue pour les projets embarqués basés sur **ESP32**.
 Elle fournit une abstraction unifiée permettant d’utiliser :
 - le CAN interne ESP32 (TWAI) via ACAN_ESP32
 - un ou plusieurs MCP2515 externes via ACAN2515
