@@ -119,6 +119,7 @@ Configure ACAN_ESP32 ou ACAN2515 selon la plateforme
 ### CanConfig
 - Configuration du bus (vitesse, mode, filtres)
 
+## 🛠 Compatibilité
 
 | Plateforme | Support |
 | --- | --- |
