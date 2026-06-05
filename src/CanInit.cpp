@@ -12,15 +12,26 @@
  * ============================================================================
  *  Initialise tous les bus CAN décrits par l’application via CanConfigProvider.
  *
- *  La bibliothèque :
- *    - ne connaît pas le matériel exact
- *    - ne connaît pas les pins
- *    - ne connaît pas le nombre de bus
+ *  La bibliothèque ne connaît :
+ *    - ni les pins
+ *    - ni les vitesses
+ *    - ni le nombre de bus
+ *    - ni le matériel utilisé (ESP32 interne ou MCP2515)
  *
- *  Elle se contente de :
- *    → lire la configuration fournie
- *    → instancier les bons drivers
- *    → initialiser chaque bus
+ *  → Toutes ces informations sont fournies par l’application.
+ *
+ *  La bibliothèque se contente de :
+ *    1. Lire la configuration de chaque bus
+ *    2. Déterminer s’il s’agit d’un bus interne (TWAI) ou externe (MCP2515)
+ *    3. Instancier le bon driver ACAN
+ *    4. Initialiser le bus
+ *    5. Enregistrer le driver dans CanBus pour l’envoi/réception
+ *
+ *  Cette approche rend la bibliothèque :
+ *    - totalement générique
+ *    - indépendante du matériel
+ *    - compatible multi‑bus
+ *    - simple à intégrer dans n’importe quel projet
  * ============================================================================
  */
 
@@ -32,8 +43,12 @@ bool CanInit::begin(const CanConfigProvider& provider) {
 
     for (uint8_t i = 0; i < count; i++) {
 
+        // Récupération de la configuration du bus i
         const CanBusConfig& cfg = provider.bus(i);
 
+        // ---------------------------------------------------------------------
+        // Bus désactivé
+        // ---------------------------------------------------------------------
         if (!cfg.enabled) {
             Serial.printf("[CAN%u] Désactivé\n", i);
             continue;
@@ -42,49 +57,10 @@ bool CanInit::begin(const CanConfigProvider& provider) {
         // ---------------------------------------------------------------------
         // CAN interne ESP32 (TWAI)
         // ---------------------------------------------------------------------
+        // Convention : si cs_pin == GPIO_NUM_NC → ce n’est PAS un MCP2515
+        //              donc c’est un bus CAN interne ESP32
+        // ---------------------------------------------------------------------
         if (cfg.cs_pin == GPIO_NUM_NC) {
-            // → Pas de CS → c’est un bus interne ESP32
 
             ACAN_ESP32_Settings settings(cfg.speed);
             settings.mTxPin = cfg.tx_pin;
-            settings.mRxPin = cfg.rx_pin;
-
-            uint32_t err = ACAN_ESP32::can.begin(settings);
-
-            if (err != 0) {
-                Serial.printf("[CAN%u] Erreur ACAN_ESP32 : 0x%X\n", i, err);
-            } else {
-                Serial.printf("[CAN%u] OK (ESP32 interne)\n", i);
-            }
-
-            // Enregistrer le driver dans CanBus
-            CanBus::attach(i, &ACAN_ESP32::can);
-        }
-
-        // ---------------------------------------------------------------------
-        // CAN externe MCP2515
-        // ---------------------------------------------------------------------
-        else {
-            // → Présence d’un CS → MCP2515
-
-            static ACAN2515* drivers[8] = { nullptr };
-
-            drivers[i] = new ACAN2515(cfg.cs_pin, SPI, cfg.int_pin);
-
-            ACAN2515Settings settings(cfg.quartz, cfg.speed, cfg.tolerance);
-
-            uint32_t err = drivers[i]->begin(settings, [](){});
-
-            if (err != 0) {
-                Serial.printf("[CAN%u] Erreur MCP2515 : 0x%X\n", i, err);
-            } else {
-                Serial.printf("[CAN%u] OK (MCP2515 externe)\n", i);
-            }
-
-            // Enregistrer le driver dans CanBus
-            CanBus::attach(i, drivers[i]);
-        }
-    }
-
-    return true;
-}
