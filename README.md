@@ -38,7 +38,7 @@ Dans votre `platformio.ini` :
 lib_deps =
     https://github.com/prune74/CanUniversal.git
 ```
-📁 Structure du projet
+## 📁 Structure du projet
 
 ```Code
 CanUniversal/
@@ -97,3 +97,29 @@ void loop() {
     delay(100);
 }
 ```
+## 🧩 Modules principaux
+
+### CanInit
+Détecte et initialise automatiquement le contrôleur CAN
+
+Configure ACAN_ESP32 ou ACAN2515 selon la plateforme
+
+CanBus
+Envoi / réception de trames CAN
+
+Bufferisation
+
+Gestion des erreurs
+
+CanMsg
+Structure de message CAN typée
+
+Helpers pour manipuler les données
+
+CanID
+Gestion des IDs Discovery 2026
+
+Helpers pour encoder/décoder les champs
+
+CanConfig
+Configuration du bus (vitesse, mode, filtres)
