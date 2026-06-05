@@ -105,15 +105,19 @@ Configure ACAN_ESP32 ou ACAN2515 selon la plateforme
 
 ### CanBus
 Envoi / réception de trames CAN
+
 Bufferisation
+
 Gestion des erreurs
 
 ### CanMsg
 Structure de message CAN typée
+
 Helpers pour manipuler les données
 
 ### CanID
 Gestion des IDs Discovery 2026
+
 Helpers pour encoder/décoder les champs
 
 ### CanConfig
