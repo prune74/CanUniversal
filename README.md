@@ -129,27 +129,38 @@ void loop() {
 }
 
 ```
-## 🧩 Modules principaux
+# 🧩 Modules internes
 
-### CanInit
-Détecte et initialise automatiquement le contrôleur CAN
-Configure ACAN_ESP32 ou ACAN2515 selon la plateforme
+## CanInit
+- Initialise automatiquement chaque bus CAN  
+- Sélectionne le driver approprié (**ESP32 interne** ou **MCP2515 externe**)  
+- Attache les drivers à CanBus  
 
-### CanBus
-- Envoi / réception de trames CAN
-- Bufferisation
-- Gestion des erreurs
+---
 
-### CanMsg
-- Structure de message CAN typée
-- Helpers pour manipuler les données
+## CanBus
+- API unifiée pour envoyer et recevoir des trames  
+- Compatible **multi‑bus**  
+- Gestion des erreurs et de la bufferisation interne  
 
-### CanID
-- Gestion des IDs Discovery 2026
-- Helpers pour encoder/décoder les champs
+---
 
-### CanConfig
-- Configuration du bus (vitesse, mode, filtres)
+## CanMsg
+- Structure de trame CAN simple et efficace  
+- Helpers pour manipuler les données (lecture/écriture, cast, etc.)  
+
+---
+
+## CanID
+- Gestion centralisée des IDs Discovery 2026  
+- Encodage et décodage des champs d’identification  
+
+---
+
+## CanConfigProvider
+- Interface permettant à l’application de fournir sa configuration matérielle  
+- Permet une architecture totalement modulaire (Master, DCC2CAN, Booster, Gateway…)  
+
 
 ## 🛠 Compatibilité
 
