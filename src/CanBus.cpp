@@ -16,11 +16,18 @@
  *  Il utilise uniquement CanMsg, une abstraction indépendante du hardware.
  *
  *  Objectifs :
- *    - permettre plusieurs bus CAN simultanés (CAN[0], CAN[1], CAN[2]…)
+ *    - permettre plusieurs bus CAN simultanés (CAN0, CAN1, CAN2…)
  *    - ne rien imposer à l’application (rôle, vitesse, pins…)
  *    - masquer totalement les drivers ACAN_ESP32 et ACAN2515
  * ============================================================================
  */
+
+
+// -----------------------------------------------------------------------------
+// Tableau statique contenant les pointeurs vers les bus CAN
+// (max 8 bus, largement suffisant pour tous les projets)
+// -----------------------------------------------------------------------------
+CanBus* CanBus::buses[8] = { nullptr };
 
 
 /**
@@ -118,4 +125,38 @@ bool CanBus::receive(CanMsg &msg) {
     }
 
     return false;
+}
+
+
+/**
+ * ---------------------------------------------------------------------------
+ *  Enregistrement d’un driver pour un bus donné
+ * ---------------------------------------------------------------------------
+ *  Appelé automatiquement par CanInit::begin()
+ *
+ *  Exemple :
+ *      CanBus::attach(0, &ACAN_ESP32::can);
+ *      CanBus::attach(1, new ACAN2515(...));
+ * ---------------------------------------------------------------------------
+ */
+void CanBus::attach(uint8_t index, void *driverPtr) {
+    buses[index] = new CanBus(driverPtr);
+}
+
+
+/**
+ * ---------------------------------------------------------------------------
+ *  Accès à un bus CAN
+ * ---------------------------------------------------------------------------
+ *  Permet d’écrire :
+ *
+ *      CanBus::bus(0).send(msg);
+ *      CanBus::bus(1).receive(msg);
+ *
+ *  @param index : numéro du bus (0, 1, 2…)
+ *  @return référence vers le bus demandé
+ * ---------------------------------------------------------------------------
+ */
+CanBus& CanBus::bus(uint8_t index) {
+    return *buses[index];
 }
