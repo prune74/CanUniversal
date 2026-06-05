@@ -120,4 +120,24 @@ Configure ACAN_ESP32 ou ACAN2515 selon la plateforme
 - Configuration du bus (vitesse, mode, filtres)
 
 
+| Plateforme | Support |
+| --- | --- |
+| ESP32 (CAN interne) | ✔️ ACAN_ESP32 |
+| MCP2515 (CAN externe) | ✔️ ACAN2515 |
+| Arduino Framework | ✔️ |
+| PlatformIO | ✔️ |
 
+## 📜 Licence
+Ce projet est distribué sous licence MIT.
+Vous êtes libre de l’utiliser dans vos projets personnels ou professionnels.
+
+## 🤝 Contribuer
+Les contributions sont les bienvenues :
+- Pull Requests
+- Issues
+- Améliorations de documentation
+- Exemples supplémentaires
+
+## 🧭 Auteur
+Bruno (prune74)  
+Projet Discovery 2026 — Architecture CAN & DCC
