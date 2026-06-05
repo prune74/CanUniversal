@@ -90,19 +90,19 @@ CanUniversal/
  ├── README.md
  └── LICENSE
 ```
-## 🚀 Exemple minimal
+## 🚀 Exemple minimal (avec Provider)
 
 ```cpp
 #include <CanMsg.h>
 #include <CanInit.h>
 #include <CanBus.h>
+#include "MyCanConfig.h"   // votre provider
 
 void setup() {
     Serial.begin(115200);
     delay(1000);
 
-    // Initialisation du bus CAN (interne ou MCP2515 selon config)
-    if (!CanInit::begin()) {
+    if (!CanInit::begin(MY_CAN_CONFIG)) {
         Serial.println("Erreur d'initialisation CAN !");
         while (true);
     }
@@ -111,16 +111,15 @@ void setup() {
 }
 
 void loop() {
-    // Exemple d’envoi
+    // Envoi
     CanMsg msg;
     msg.id = 0x123;
     msg.len = 2;
     msg.data[0] = 0xAB;
     msg.data[1] = 0xCD;
-
     CanBus::send(msg);
 
-    // Exemple de réception
+    // Réception
     if (CanBus::available()) {
         CanMsg rx = CanBus::receive();
         Serial.printf("Reçu ID=0x%X, len=%d\n", rx.id, rx.len);
@@ -128,6 +127,7 @@ void loop() {
 
     delay(100);
 }
+
 ```
 ## 🧩 Modules principaux
 
