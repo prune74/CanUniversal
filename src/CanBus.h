@@ -1,109 +1,72 @@
 #pragma once
-#include "CanMsg.h"
 #include <stdint.h>
+
+class CanMsg;
 
 /**
  * ============================================================================
- *  Classe CanBus
+ * 🚌 CanBus — Abstraction multi‑bus Discovery 2026
  * ============================================================================
- *  Abstraction d’un bus CAN matériel.
+ * Cette classe encapsule un driver CAN (ESP32 interne ou MCP2515 externe)
+ * derrière une API unifiée :
  *
- *  Cette classe encapsule un driver ACAN (ESP32 interne ou MCP2515 externe)
- *  derrière une API unifiée :
+ *      • send()    → envoi d’un message CAN
+ *      • receive() → réception d’un message CAN
  *
- *      - send()    : envoi d’un message CAN
- *      - receive() : réception d’un message CAN
+ * Objectifs :
+ *   - gérer plusieurs bus CAN simultanés (CAN0, CAN1…)
+ *   - masquer totalement ACAN_ESP32 et ACAN2515
+ *   - permettre une architecture tolérante aux erreurs
+ *   - éviter tout crash même si un bus est absent ou invalide
  *
- *  Le code applicatif ne manipule JAMAIS les drivers ACAN directement.
- *  Il utilise uniquement :
+ * Un bus peut être :
+ *   - valide   → driver initialisé et opérationnel
+ *   - invalide → driver absent, erreur d’init, ou matériel non câblé
  *
- *      CanBus::bus(index)
- *
- *  Ce qui permet :
- *    - plusieurs bus CAN simultanés (CAN0, CAN1, CAN2…)
- *    - une architecture totalement générique
- *    - aucune dépendance matérielle dans le code applicatif
+ * Dans tous les cas, l’accès via CanBus::bus(index) reste sûr.
  * ============================================================================
  */
 class CanBus {
 public:
 
-    /**
-     * -------------------------------------------------------------------------
-     *  Constructeur
-     * -------------------------------------------------------------------------
-     *  @param driverPtr : pointeur vers un driver ACAN
-     *
-     *  Ce pointeur peut être :
-     *    - &ACAN_ESP32::can  → driver CAN interne ESP32
-     *    - new ACAN2515(...) → instance d’un MCP2515 externe
-     *
-     *  Le pointeur est stocké tel quel, sans cast.
-     *  Le cast est effectué uniquement dans send() / receive().
-     * -------------------------------------------------------------------------
-     */
-    explicit CanBus(void *driverPtr);
+    // -------------------------------------------------------------------------
+    // 🟦 Accès sécurisé à un bus CAN
+    // -------------------------------------------------------------------------
+    // Retourne un bus valide ou un bus "factice" si le bus réel est invalide.
+    static CanBus& bus(uint8_t index);
 
-    /**
-     * Envoi d’un message CAN via le driver associé.
-     * @param msg : message générique CanMsg
-     * @return true si l’envoi a réussi
-     */
-    bool send(const CanMsg &msg);
-
-    /**
-     * Réception d’un message CAN via le driver associé.
-     * @param msg : message générique CanMsg (rempli si réception OK)
-     * @return true si un message a été reçu
-     */
-    bool receive(CanMsg &msg);
-
-    // ---------------------------------------------------------------------
-    // Accès global aux bus CAN
-    // ---------------------------------------------------------------------
-
-    /**
-     * Enregistre un driver ACAN pour un bus donné.
-     *
-     * Appelé automatiquement par :
-     *      CanInit::begin(provider)
-     *
-     * Exemple :
-     *      CanBus::attach(0, &ACAN_ESP32::can);
-     *      CanBus::attach(1, new ACAN2515(...));
-     */
+    // -------------------------------------------------------------------------
+    // 🟩 Attacher un driver valide (appelé par CanInit)
+    // -------------------------------------------------------------------------
     static void attach(uint8_t index, void *driverPtr);
 
-    /**
-     * Retourne une référence vers le bus CAN demandé.
-     *
-     * Exemple d’utilisation :
-     *      CanBus::bus(0).send(msg);
-     *      CanBus::bus(1).receive(msg);
-     *
-     * @param index : numéro du bus (0, 1, 2…)
-     */
-    static CanBus& bus(uint8_t index);
+    // -------------------------------------------------------------------------
+    // 🟥 Attacher un bus invalide (driver absent ou init échouée)
+    // -------------------------------------------------------------------------
+    static void attachInvalid(uint8_t index);
+
+    // -------------------------------------------------------------------------
+    // 🟨 Vérifier si le bus est valide
+    // -------------------------------------------------------------------------
+    bool isValid() const { return valid; }
+
+    // -------------------------------------------------------------------------
+    // 🟦 API unifiée d’envoi / réception
+    // -------------------------------------------------------------------------
+    bool send(const CanMsg &msg);
+    bool receive(CanMsg &msg);
 
 private:
 
-    /**
-     * Pointeur vers le driver ACAN associé à ce bus.
-     * Peut pointer vers :
-     *    - ACAN_ESP32::can
-     *    - une instance ACAN2515
-     */
-    void *driver;
+    // Constructeur interne
+    explicit CanBus(void *driverPtr);
 
-    /**
-     * Tableau statique contenant les pointeurs vers les bus CAN.
-     *
-     * Ce tableau est rempli par CanBus::attach() lors de l’initialisation.
-     * Exemple :
-     *      buses[0] = new CanBus(&ACAN_ESP32::can);
-     *      buses[1] = new CanBus(new ACAN2515(...));
-     *
-     * Limite actuelle : 8 bus maximum (suffisant pour 99% des projets).
-     */
+    // Pointeur vers driver ACAN (ESP32 ou MCP2515)
+    void *driver = nullptr;
+
+    // État du bus
+    bool valid = true;
+
+    // Tableau statique des bus
     static CanBus* buses[8];
 };
