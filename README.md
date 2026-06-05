@@ -168,6 +168,7 @@ void loop() {
 | --- | --- |
 | ESP32 (CAN interne) | ✔️ ACAN_ESP32 |
 | MCP2515 (CAN externe) | ✔️ ACAN2515 |
+| Multi‑bus | ✔️ |
 | Arduino Framework | ✔️ |
 | PlatformIO | ✔️ |
 
