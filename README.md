@@ -17,6 +17,49 @@ Cette bibliothèque est utilisée dans :
 
 et plus largement dans l’architecture Discovery 2026.
 
+# ✨ Fonctionnalités principales
+
+## 🔧 Initialisation automatique
+- Détection du type de bus :
+  - **ESP32 interne** si `cs_pin == GPIO_NUM_NC`
+  - **MCP2515 externe** sinon
+- Support **multi‑bus** : CAN0, CAN1, CAN2…
+
+---
+
+## 📡 Gestion du bus (CanBus)
+- Envoi / réception de trames  
+- Bufferisation interne  
+- Gestion des erreurs  
+- API unifiée pour tous les drivers (ACAN_ESP32 / ACAN2515)
+
+---
+
+## 📦 Messages typés (CanMsg)
+- Structure simple et efficace  
+- Helpers pour manipuler les données  
+- Compatible avec l’architecture **Discovery 2026**
+
+---
+
+## 🧩 Configuration modulaire (CanConfigProvider)
+Chaque module fournit sa propre configuration matérielle :
+
+- **MasterConfig**  
+- **Dcc2CanConfig**  
+- **BoosterConfig**  
+- **GatewayConfig**
+
+➡️ **Aucun code matériel dans la bibliothèque**, tout est externalisé dans les modules.
+
+---
+
+## 🧠 Architecture propre
+- Code clair, documenté, maintenable  
+- Séparation stricte entre :
+  - **la bibliothèque générique** (CanUniversal)  
+  - **les modules Discovery spécifiques** (Master, Booster, DCC2CAN, Gateway…)
+
 ## 📦 Installation
 
 ### Via PlatformIO (recommandé)
