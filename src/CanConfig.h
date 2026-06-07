@@ -44,6 +44,22 @@ struct CanBusConfig {
 
     //** Support du mode loopback (tests sans matériel) — uniquement pour le CAN interne ESP32 */
     bool loopback;   // Active le mode loopback (ESP32 interne)
+
+    // Constructeur par défaut sécurisé
+    CanBusConfig()
+        : enabled(false),
+          speed(0),
+          tx_pin(GPIO_NUM_NC),
+          rx_pin(GPIO_NUM_NC),
+          cs_pin(GPIO_NUM_NC),
+          int_pin(GPIO_NUM_NC),
+          sck_pin(GPIO_NUM_NC),
+          mosi_pin(GPIO_NUM_NC),
+          miso_pin(GPIO_NUM_NC),
+          quartz(0),
+          tolerance(0),
+          loopback(false)
+    {}
 };
 
 

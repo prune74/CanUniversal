@@ -6,7 +6,7 @@
 
 /**
  * ============================================================================
- * 🚌 Implémentation CanBus — Discovery 2026
+ * 🚌 CanBus — Discovery 2026
  * ============================================================================
  * Gestion sécurisée de plusieurs bus CAN simultanés.
  * Chaque bus peut être valide ou invalide, mais l’accès reste toujours sûr.
@@ -20,12 +20,12 @@ CanBus* CanBus::buses[8] = { nullptr };
 
 
 // -----------------------------------------------------------------------------
-// 🟩 Constructeur
+// 🟩 Constructeur — driverPtr != nullptr → bus valide
 // -----------------------------------------------------------------------------
 CanBus::CanBus(void *driverPtr)
-    : driver(driverPtr)
+    : driver(driverPtr),
+      valid(driverPtr != nullptr)   // 🔥 Correction essentielle
 {
-    // Rien à faire : le driver sera utilisé tel quel.
 }
 
 
@@ -41,8 +41,7 @@ void CanBus::attach(uint8_t index, void *driverPtr) {
 // 🟥 Attacher un bus invalide (driver absent ou init échouée)
 // -----------------------------------------------------------------------------
 void CanBus::attachInvalid(uint8_t index) {
-    buses[index] = new CanBus(nullptr);
-    buses[index]->valid = false;
+    buses[index] = new CanBus(nullptr);   // valid = false automatiquement
 }
 
 
@@ -52,8 +51,7 @@ void CanBus::attachInvalid(uint8_t index) {
 CanBus& CanBus::bus(uint8_t index) {
 
     // Bus factice utilisé si le bus réel est invalide
-    static CanBus invalidBus(nullptr);
-    invalidBus.valid = false;
+    static CanBus invalidBus(nullptr);  // valid = false
 
     if (index >= 8 || buses[index] == nullptr || !buses[index]->valid) {
         return invalidBus;
