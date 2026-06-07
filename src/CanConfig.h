@@ -19,33 +19,28 @@
  */
 struct CanBusConfig {
 
-    /** Active ou désactive ce bus CAN */
-    bool enabled;
+    bool enabled;          // Active ou désactive le bus
+    uint32_t speed;        // Vitesse en bit/s
 
-    /** Vitesse du bus CAN (en bit/s) — ex : 125000, 250000, 500000, 1000000 */
-    uint32_t speed;
-
-    /** Broches TX/RX pour le CAN interne ESP32 (TWAI) */
+    // Broches TWAI interne ESP32
     gpio_num_t tx_pin;
     gpio_num_t rx_pin;
 
-    /** Broches pour le MCP2515 (bus SPI) */
-    gpio_num_t cs_pin;     // Chip Select
-    gpio_num_t int_pin;    // Interruption
-    gpio_num_t sck_pin;    // SPI Clock
-    gpio_num_t mosi_pin;   // SPI MOSI
-    gpio_num_t miso_pin;   // SPI MISO
+    // Broches MCP2515 (SPI)
+    gpio_num_t cs_pin;
+    gpio_num_t int_pin;
+    gpio_num_t sck_pin;
+    gpio_num_t mosi_pin;
+    gpio_num_t miso_pin;
 
-    /** Quartz du MCP2515 (en Hz) — ex : 8 MHz ou 16 MHz */
-    uint32_t quartz;
+    uint32_t quartz;       // Quartz MCP2515 (Hz)
+    uint8_t  tolerance;    // Tolérance ACAN2515 (%)
 
-    /** Tolérance ACAN2515 (en %) — ex : 50 */
-    uint8_t tolerance;
+    bool loopback;         // Loopback TWAI (ESP32 interne uniquement)
 
-    //** Support du mode loopback (tests sans matériel) — uniquement pour le CAN interne ESP32 */
-    bool loopback;   // Active le mode loopback (ESP32 interne)
-
-    // Constructeur par défaut sécurisé
+    // -------------------------------------------------------------------------
+    // 🔹 Constructeur par défaut sécurisé
+    // -------------------------------------------------------------------------
     CanBusConfig()
         : enabled(false),
           speed(0),
@@ -59,6 +54,37 @@ struct CanBusConfig {
           quartz(0),
           tolerance(0),
           loopback(false)
+    {}
+
+    // -------------------------------------------------------------------------
+    // 🔹 Constructeur complet — permet l’usage de { … } dans MasterConfig
+    // -------------------------------------------------------------------------
+    CanBusConfig(
+        bool enabled,
+        uint32_t speed,
+        gpio_num_t tx_pin,
+        gpio_num_t rx_pin,
+        gpio_num_t cs_pin,
+        gpio_num_t int_pin,
+        gpio_num_t sck_pin,
+        gpio_num_t mosi_pin,
+        gpio_num_t miso_pin,
+        uint32_t quartz,
+        uint8_t tolerance,
+        bool loopback
+    )
+        : enabled(enabled),
+          speed(speed),
+          tx_pin(tx_pin),
+          rx_pin(rx_pin),
+          cs_pin(cs_pin),
+          int_pin(int_pin),
+          sck_pin(sck_pin),
+          mosi_pin(mosi_pin),
+          miso_pin(miso_pin),
+          quartz(quartz),
+          tolerance(tolerance),
+          loopback(loopback)
     {}
 };
 
