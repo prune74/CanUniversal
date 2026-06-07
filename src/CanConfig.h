@@ -43,8 +43,8 @@ struct CanBusConfig {
     uint8_t tolerance;
 
     //** Support du mode loopback (tests sans matériel) — uniquement pour le CAN interne ESP32 */
-    bool loopback = false;   // Active le mode loopback (ESP32 interne)
-    bool no_ack   = false;   // Désactive l’attente d’ACK (ESP32 interne)
+    bool loopback;   // Active le mode loopback (ESP32 interne)
+    bool no_ack;     // Désactive l’attente d’ACK (ESP32 interne)
 };
 
 
