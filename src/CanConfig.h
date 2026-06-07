@@ -41,6 +41,12 @@ struct CanBusConfig {
 
     /** Tolérance ACAN2515 (en %) — ex : 50 */
     uint8_t tolerance;
+
+    // =========================================================================
+    // 🔥 Ajouts Discovery 2026 — support du mode loopback (tests sans matériel)
+    // =========================================================================
+    bool loopback = false;   // Active le mode loopback (ESP32 interne)
+    bool no_ack   = false;   // Désactive l’attente d’ACK (ESP32 interne)
 };
 
 
