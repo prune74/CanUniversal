@@ -25,19 +25,22 @@
  * ============================================================================
  */
 
-bool CanInit::begin(const CanConfigProvider& provider) {
+bool CanInit::begin(const CanConfigProvider &provider)
+{
 
     const uint8_t count = provider.busCount();
     Serial.printf("[CAN] Initialisation de %u bus...\n", count);
 
-    for (uint8_t i = 0; i < count; i++) {
+    for (uint8_t i = 0; i < count; i++)
+    {
 
-        const CanBusConfig& cfg = provider.bus(i);
+        const CanBusConfig &cfg = provider.bus(i);
 
         // ---------------------------------------------------------------------
         // 🟥 Bus désactivé dans la config
         // ---------------------------------------------------------------------
-        if (!cfg.enabled) {
+        if (!cfg.enabled)
+        {
             Serial.printf("[CAN%u] Désactivé\n", i);
             CanBus::attachInvalid(i);
             continue;
@@ -46,7 +49,8 @@ bool CanInit::begin(const CanConfigProvider& provider) {
         // ---------------------------------------------------------------------
         // 🟦 CAN interne ESP32 (TWAI)
         // ---------------------------------------------------------------------
-        if (cfg.cs_pin == GPIO_NUM_NC) {
+        if (cfg.cs_pin == GPIO_NUM_NC)
+        {
 
             ACAN_ESP32_Settings settings(cfg.speed);
             settings.mTxPin = cfg.tx_pin;
@@ -54,7 +58,8 @@ bool CanInit::begin(const CanConfigProvider& provider) {
 
             uint32_t err = ACAN_ESP32::can.begin(settings);
 
-            if (err != 0) {
+            if (err != 0)
+            {
                 Serial.printf("[CAN%u] Erreur ACAN_ESP32 : 0x%X → bus désactivé\n", i, err);
                 CanBus::attachInvalid(i);
                 continue;
@@ -68,15 +73,18 @@ bool CanInit::begin(const CanConfigProvider& provider) {
         // ---------------------------------------------------------------------
         // 🟧 CAN externe MCP2515
         // ---------------------------------------------------------------------
-        static ACAN2515* drivers[8] = { nullptr };
+        static ACAN2515 *drivers[8] = {nullptr};
 
         drivers[i] = new ACAN2515(cfg.cs_pin, SPI, cfg.int_pin);
 
+        SPI.begin(cfg.sck_pin, cfg.miso_pin, cfg.mosi_pin, cfg.cs_pin);
+
         ACAN2515Settings settings(cfg.quartz, cfg.speed, cfg.tolerance);
 
-        uint32_t err = drivers[i]->begin(settings, [](){});
+        uint32_t err = drivers[i]->begin(settings, []() {});
 
-        if (err != 0) {
+        if (err != 0)
+        {
             Serial.printf("[CAN%u] Erreur MCP2515 : 0x%X → bus désactivé\n", i, err);
             CanBus::attachInvalid(i);
             continue;
