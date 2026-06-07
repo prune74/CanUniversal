@@ -55,14 +55,14 @@ bool CanInit::begin(const CanConfigProvider &provider)
             ACAN_ESP32_Settings settings(cfg.speed);
             settings.mTxPin = cfg.tx_pin;
             settings.mRxPin = cfg.rx_pin;
-            
+
             if (cfg.loopback)
             {
-                settings.mMode = ACAN_ESP32_Settings::LoopBackMode;
+                settings.mCANMode = ACAN_ESP32_Settings::LoopBackMode;
             }
             else
             {
-                settings.mMode = ACAN_ESP32_Settings::NormalMode;
+                settings.mCANMode = ACAN_ESP32_Settings::NormalMode;
             }
 
             uint32_t err = ACAN_ESP32::can.begin(settings);
