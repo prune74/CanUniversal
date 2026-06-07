@@ -85,7 +85,6 @@ bool CanInit::begin(const CanConfigProvider &provider)
         static ACAN2515 *drivers[8] = {nullptr};
 
         drivers[i] = new ACAN2515(cfg.cs_pin, SPI, cfg.int_pin);
-        Serial.println(">>> DEBUG: SPI.begin() exécuté");
 
         SPI.begin(cfg.sck_pin, cfg.miso_pin, cfg.mosi_pin, cfg.cs_pin);
 
