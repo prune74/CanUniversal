@@ -51,18 +51,18 @@ bool CanInit::begin(const CanConfigProvider &provider)
         // ---------------------------------------------------------------------
         if (cfg.cs_pin == GPIO_NUM_NC)
         {
-
             ACAN_ESP32_Settings settings(cfg.speed);
             settings.mTxPin = cfg.tx_pin;
             settings.mRxPin = cfg.rx_pin;
 
+            // Loopback logiciel via mRequestedCANMode
             if (cfg.loopback)
             {
-                settings.mCANMode = ACAN_ESP32_Settings::LoopBackMode;
+                settings.mRequestedCANMode = ACAN_ESP32_Settings::LoopBackMode;
             }
             else
             {
-                settings.mCANMode = ACAN_ESP32_Settings::NormalMode;
+                settings.mRequestedCANMode = ACAN_ESP32_Settings::NormalMode;
             }
 
             uint32_t err = ACAN_ESP32::can.begin(settings);
