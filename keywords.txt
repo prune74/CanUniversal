@@ -1,0 +1,32 @@
+#######################################
+# Syntax Coloring Map for CanUniversal
+#######################################
+
+# Datatypes (KEYWORD1)
+CanUniversal	KEYWORD1
+CanBus	KEYWORD1
+CanMsg	KEYWORD1
+CanID	KEYWORD1
+CanInit	KEYWORD1
+CanBusConfig	KEYWORD1
+CanConfigProvider	KEYWORD1
+
+# Methods and functions (KEYWORD2)
+begin	KEYWORD2
+bus	KEYWORD2
+attach	KEYWORD2
+attachInvalid	KEYWORD2
+send	KEYWORD2
+receive	KEYWORD2
+isValid	KEYWORD2
+is11	KEYWORD2
+is29	KEYWORD2
+toFrame	KEYWORD2
+make29	KEYWORD2
+prio	KEYWORD2
+cmde	KEYWORD2
+resp	KEYWORD2
+nodeId	KEYWORD2
+
+# Constants (LITERAL1)
+MAX_11BIT_ID	LITERAL1
