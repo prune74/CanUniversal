@@ -1,0 +1,29 @@
+{
+  "name": "CanUniversal",
+  "version": "3.1.0",
+  "description": "Universal CAN bus library for ESP32: built-in TWAI controller and external MCP2515 supported natively, no external dependency. Multi-bus, non-blocking, optional hardware filter, 11-bit and 29-bit (Locoduino/Maerklin) identifiers.",
+  "keywords": ["can", "twai", "mcp2515", "multi-bus", "esp32", "model-railroading"],
+  "license": "MIT",
+  "homepage": "https://github.com/prune74/CanUniversal",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/prune74/CanUniversal.git"
+  },
+  "authors": [
+    { "name": "Bruno Rivera" }
+  ],
+  "frameworks": ["arduino", "espidf"],
+  "platforms": ["espressif32"],
+  "headers": "CanUniversal.h",
+  "export": {
+    "include": [
+      "src",
+      "Examples",
+      "LICENSE.txt",
+      "keywords.txt",
+      "library.json",
+      "library.properties",
+      "README.md"
+    ]
+  }
+}
