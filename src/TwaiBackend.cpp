@@ -72,16 +72,18 @@ bool TwaiBackend::begin(const CanBusConfig &cfg)
 bool TwaiBackend::send(const CanMsg &msg)
 {
     if (!loopbackMode && isOff())
-        recover();                 // bus malade → soigner avant d'émettre
+        recover();
 
     twai_message_t m = {};
     m.identifier = msg.id;
-    m.extd = msg.is29();           // 11 ou 29 bits, comme CanID
+    m.extd = msg.is29();
     m.data_length_code = msg.dlc;
     for (uint8_t i = 0; i < msg.dlc; i++) m.data[i] = msg.data[i];
 
-    // timeout 0 = "rends-moi la main immédiatement si c'est impossible" :
-    // jamais bloquant, résultat honnête.
+    // Loopback matériel : self-reception request — le contrôleur
+    // reçoit sa propre trame (impossible sinon, même en NO_ACK).
+    m.self = loopbackMode ? 1 : 0;
+
     return twai_transmit(&m, 0) == ESP_OK;
 }
 
