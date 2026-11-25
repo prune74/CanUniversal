@@ -149,7 +149,7 @@ void loop() {
 }
 ```
 
-Voir [`Examples/BasicExample/BasicExample.ino`](Examples/BasicExample/BasicExample.ino) pour une version commentée, et le dépôt [Test-CanUniversal-3.0.0](https://github.com/prune74/Test-CanUniversal-3.0.0) pour un projet PlatformIO complet de test (loopback TWAI validé sur matériel).
+Voir [`Examples/BasicExample/BasicExample.ino`](./Examples/BasicExample/BasicExample.ino) pour une version commentée, et le dépôt [Test-CanUniversal-3.0.0](https://github.com/prune74/Test-CanUniversal-3.0.0) pour un projet PlatformIO complet de test (loopback TWAI validé sur matériel).
 
 💡 **Trames 29 bits** : `CanMsg tx((uint32_t)0x00086010, { ... });` — le cast `(uint32_t)` est obligatoire quand l'ID est écrit en dur (sinon le compilateur ne sait pas choisir entre les constructeurs 11 et 29 bits).
 
@@ -204,7 +204,7 @@ Aucune interruption nulle part : l'application vient lire les trames quand **ell
 
 # 📜 Licence
 
-Ce projet est distribué sous licence MIT (voir [LICENSE.txt](LICENSE.txt)).
+Ce projet est distribué sous licence MIT (voir [LICENSE.txt](./LICENSE.txt)).
 Vous êtes libre de l'utiliser dans vos projets personnels ou professionnels.
 
 # 🤝 Contribuer
